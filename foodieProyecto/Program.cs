@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace foodieProyecto
 {
     public class Program
@@ -8,6 +10,12 @@ namespace foodieProyecto
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // Inyeccion
+            /*builder.Services.AddDbContext<equiposContext>(options =>
+            options.UseSqlServer(
+                builder.Configuration.GetConnectionString("equiposDbConnection"))
+            );*/
 
             var app = builder.Build();
 

@@ -1,0 +1,42 @@
+﻿@model IEnumerable<PedidoLocal>
+
+<h2 class="text-center">Cuentas del Restaurante</h2>
+<div class="container">
+    <div class="d-flex justify-content-between mb-3">
+        <div>
+            <a href="@Url.Action("Index", new { estado = (string)null })" class="btn btn-danger">Todas</a>
+            <a href="@Url.Action("Index", new { estado = "Abierta" })" class="btn btn-primary">Abiertas</a>
+            <a href="@Url.Action("Index", new { estado = "Cerrada" })" class="btn btn-primary">Cerradas</a>
+        </div>
+        <div class="d-flex">
+            <form method="get" action="@Url.Action("Index")" class="d-flex align-items-center">
+                <select name="orden" class="form-select me-2" onchange="this.form.submit()">
+                    <option value="">Ordenar por...</option>
+                    <option value="Por mesa">Por mesa</option>
+                    <option value="Por estado">Por estado</option>
+                </select>
+                <input type="text" name="busqueda" class="form-control me-2"
+                       placeholder="Buscar mesa"
+                       value="@Context.Request.Query["busqueda"]">
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var pedido in Model)
+        {
+            <div class="col-md-3 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Mesa #@pedido.IdMesa</h5>
+                        <p><i class="bi bi-clock"></i> Abierta: @(pedido.FechaApertura?.ToString("HH:mm") ?? "No disponible")</p>
+                        <p><i class="bi bi-person"></i> Cliente: @pedido.NombreCliente</p>
+                        <p><i class="bi bi-cash"></i> Subtotal: $@(pedido.DetallePedidos.Sum(d => d.Subtotal))</p>
+                        <span class="badge bg-@(pedido.Estado == "Abierta" ? "success" : "primary")">@pedido.Estado</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+

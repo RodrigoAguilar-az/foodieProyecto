@@ -25,5 +25,5 @@ public partial class DetallePedido
 
     public virtual ICollection<DetalleFactura> DetalleFacturas { get; set; } = new List<DetalleFactura>();
 
-    public virtual PedidoLocal Encabezado { get; set; } = null!;
+    public virtual PedidoLocal? Encabezado { get; set; } = null!;
 }

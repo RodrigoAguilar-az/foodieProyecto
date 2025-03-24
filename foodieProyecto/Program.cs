@@ -9,14 +9,14 @@ namespace foodieProyecto
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
-
             // Inyeccion
             builder.Services.AddDbContext<RestauranteContext>(options =>
             options.UseSqlServer(
                 builder.Configuration.GetConnectionString("RestauranteConnection"))
             );
+            // Add services to the container.
+            builder.Services.AddControllersWithViews();
+
 
             var app = builder.Build();
 

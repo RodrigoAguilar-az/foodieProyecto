@@ -1,0 +1,163 @@
+﻿@using foodieProyecto.Models.Vistas
+@model List<DetallePedidoViewModel>
+
+@{
+    var pedido = Model.First();
+}
+
+<style>
+    /* === Estilos para la tarjeta === */
+    .order-card {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .order-number {
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: #003049;
+    }
+
+    .order-time {
+        color: #495057;
+    }
+
+    .table-number {
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #003049;
+    }
+
+    .order-item {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .order-item-header {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .item-name {
+        font-weight: 500;
+    }
+
+    .item-description {
+        font-style: italic;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+
+    /* === Badges === */
+    .item-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 30px; /* Puedes ajustar este valor */
+        min-width: 80px; /* Asegura un ancho mínimo */
+        padding: 0 12px;
+        border-radius: 20px;
+        font-weight: bold;
+        color: #fff;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+
+    .badge-blue {
+        background-color: #009aff;
+    }
+
+    .badge-yellow {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    /* === Botones de acción === */
+    .action-btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: white;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Pendiente - Gris */
+    .btn-start {
+        background-color: #6c757d;
+    }
+
+    .btn-start:hover {
+        background-color: #5a6268;
+    }
+
+    /* En Proceso - Rojo */
+    .btn-finish {
+        background-color: #dc3545;
+    }
+
+    .btn-finish:hover {
+        background-color: #c82333;
+    }
+
+    /* Finalizado - Verde */
+    .btn-completed {
+        background-color: #28a745;
+    }
+
+    .btn-completed:hover {
+        background-color: #218838;
+    }
+</style>
+
+<!-- === Contenido del pedido === -->
+<div class="order-card">
+    <div class="order-header">
+        <div class="order-number">Pedido #@pedido.IdPedido</div>
+        <div class="order-time">@pedido.Hora</div>
+    </div>
+
+    <div class="table-number">Mesa #@pedido.IdMesa</div>
+
+    @foreach (var item in Model)
+    {
+        <div id="detalle-@item.IdDetallePedido" class="order-item">
+            <div class="order-item-header">
+                <div class="item-name">@item.NombreItem</div>
+                <div class="item-badge @(item.TipoItem == "Plato" ? "badge-blue" : "badge-yellow")">
+                    @item.TipoItem
+                </div>
+            </div>
+            <div class="item-description">@item.Comentarios</div>
+
+            <button class="action-btn @(item.Estado == "Pendiente" ? "btn-start" :
+                            item.Estado == "En Proceso" ? "btn-finish" :
+                            "btn-completed")"
+                    hx-post="/Cocina/ActualizarEstado"
+                    hx-target="#detalle-@item.IdDetallePedido"
+                    hx-swap="outerHTML"
+                    hx-include="closest .order-item">
+                @item.Estado
+            </button>
+
+
+            <input type="hidden" name="idDetalle" value="@item.IdDetallePedido" />
+        </div>
+    }
+</div>

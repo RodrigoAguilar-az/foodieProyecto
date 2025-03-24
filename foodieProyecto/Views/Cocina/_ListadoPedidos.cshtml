@@ -1,0 +1,16 @@
+﻿@using foodieProyecto.Models.Vistas
+@model List<DetallePedidoViewModel>
+
+@if (Model != null && Model.Any())
+{
+    foreach (var grupo in Model.GroupBy(p => new { p.IdPedido, p.IdMesa, p.Hora }))
+    {
+        <div class="col-md-4">
+            @await Html.PartialAsync("_CartaPedido", grupo.ToList())
+        </div>
+    }
+}
+else
+{
+    <p>No hay pedidos para mostrar.</p>
+}

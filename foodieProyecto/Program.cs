@@ -1,3 +1,4 @@
+using foodieProyecto.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace foodieProyecto
@@ -12,10 +13,10 @@ namespace foodieProyecto
             builder.Services.AddControllersWithViews();
 
             // Inyeccion
-            /*builder.Services.AddDbContext<equiposContext>(options =>
+            builder.Services.AddDbContext<RestauranteContext>(options =>
             options.UseSqlServer(
-                builder.Configuration.GetConnectionString("equiposDbConnection"))
-            );*/
+                builder.Configuration.GetConnectionString("DbConnection"))
+            );
 
             var app = builder.Build();
 

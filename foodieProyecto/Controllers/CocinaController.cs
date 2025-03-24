@@ -4,7 +4,7 @@ namespace foodieProyecto.Controllers
 {
     public class CocinaController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Cocina()
         {
             return View();
         }

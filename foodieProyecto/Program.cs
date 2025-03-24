@@ -13,10 +13,10 @@ namespace foodieProyecto
             builder.Services.AddControllersWithViews();
 
             // Inyeccion
-            /*builder.Services.AddDbContext<equiposContext>(options =>
+            builder.Services.AddDbContext<RestauranteContext>(options =>
             options.UseSqlServer(
-                builder.Configuration.GetConnectionString("equiposDbConnection"))
-            );*/
+                builder.Configuration.GetConnectionString("RestauranteConnection"))
+            );
 
             var app = builder.Build();
 

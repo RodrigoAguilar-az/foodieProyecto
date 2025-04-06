@@ -1,0 +1,25 @@
+﻿@using foodieProyecto.Models.Vistas
+@model DetallePedidoViewModel
+
+<div class="order-item">
+    <div class="order-item-header">
+        <div class="item-name">@Model.NombreItem</div>
+        <div class="item-badge @(Model.TipoItem == "Plato" ? "badge-blue" : "badge-yellow")">
+            @Model.TipoItem
+        </div>
+    </div>
+    <div class="item-description">@Model.Comentarios</div>
+    <button class="action-btn @(Model.Estado == "Pendiente" ? "btn-start" :
+                           Model.Estado == "En Proceso" ? "btn-finish" :
+                           "btn-completed")"
+            hx-post="@Url.Action("ActualizarEstado", "Cocina")"
+            hx-include="closest div.order-item"
+            hx-target="closest div.order-item"
+            hx-swap="outerHTML"
+            name="idDetalle"
+            value="@Model.IdDetallePedido">
+        @(Model.Estado)
+    </button>
+
+    <input type="hidden" name="estadoActual" value="@Model.Estado" />
+</div>

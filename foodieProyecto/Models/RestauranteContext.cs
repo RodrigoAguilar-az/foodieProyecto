@@ -56,11 +56,6 @@ public partial class RestauranteContext : DbContext
     public virtual DbSet<PlatosCombo> PlatosCombos { get; set; }
 
     public virtual DbSet<Promocione> Promociones { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-TCPUJ1K; Initial Catalog=restaurante; User ID=juan_monroy; Password=123456; TrustServerCertificate=True; Encrypt=False;");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Cargo>(entity =>

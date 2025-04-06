@@ -53,36 +53,34 @@ namespace foodieProyecto.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProcesarPago([FromBody] dynamic datos)
+        public async Task<IActionResult> ProcesarPago(
+    int IdPedido,
+    decimal Monto,
+    int MetodoPagoId,
+    string? TipoTarjeta,
+    string? Digitos,
+    string? Titular,
+    string? Referencia)
         {
-            int idPedido = datos.idPedido;
-            decimal monto = datos.monto;
-            int metodoPagoId = datos.metodoPagoId;
-            string tipoTarjeta = datos.tipoTarjeta;
-            string digitos = datos.digitos;
-            string titular = datos.titular;
-            string referencia = datos.referencia;
-
             var factura = await _context.Facturas
                 .Include(f => f.Pagos)
-                .FirstOrDefaultAsync(f => f.IdPedido == idPedido);
+                .FirstOrDefaultAsync(f => f.IdPedido == IdPedido);
 
             if (factura == null)
             {
-                // Crear factura si no existe aún
                 var pedido = await _context.PedidoLocals
                     .Include(p => p.DetallePedidos)
-                    .FirstOrDefaultAsync(p => p.IdPedido == idPedido);
+                    .FirstOrDefaultAsync(p => p.IdPedido == IdPedido);
 
                 if (pedido == null) return NotFound();
 
-                var subtotal = (decimal)pedido.DetallePedidos.Sum(d => d.Subtotal);
+                var subtotal = pedido.DetallePedidos.Sum(d => d.Subtotal);
                 var iva = subtotal * 0.13m;
                 var total = subtotal + iva;
 
                 factura = new Factura
                 {
-                    IdPedido = idPedido,
+                    IdPedido = IdPedido,
                     Fecha = DateTime.Now,
                     Total = total
                 };
@@ -93,37 +91,54 @@ namespace foodieProyecto.Controllers
 
             var totalPagado = factura.Pagos.Sum(p => p.Monto ?? 0);
             if (totalPagado >= factura.Total)
-                return BadRequest(new { success = false, message = "Esta factura ya está completamente pagada." });
+            {
+                TempData["Error"] = "La factura ya está completamente pagada.";
+                return RedirectToAction("DetalleCuenta", new { id = IdPedido });
+            }
 
             var pago = new Pago
             {
                 FacturaId = factura.FacturaId,
-                MetodoPagoId = metodoPagoId,
-                Monto = monto,
+                MetodoPagoId = MetodoPagoId,
+                Monto = Monto,
                 Fecha = DateTime.Now
             };
 
             _context.Pagos.Add(pago);
             await _context.SaveChangesAsync();
 
-            if ((metodoPagoId == 1 || metodoPagoId == 2) && !string.IsNullOrEmpty(digitos))
+            if ((MetodoPagoId == 1 || MetodoPagoId == 2) && !string.IsNullOrEmpty(Digitos))
             {
                 var pagoTarjeta = new PagoTarjetum
                 {
                     PagoId = pago.PagoId,
-                    Tipo = tipoTarjeta,
-                    Digitos = digitos,
-                    Titular = titular,
-                    Referencia = referencia
+                    Tipo = TipoTarjeta,
+                    Digitos = Digitos,
+                    Titular = Titular,
+                    Referencia = Referencia
                 };
 
                 _context.PagoTarjeta.Add(pagoTarjeta);
                 await _context.SaveChangesAsync();
             }
 
-            totalPagado += monto;
-
-            return Ok(new { success = true, totalPagado });
+            TempData["Success"] = "Pago registrado correctamente.";
+            return RedirectToAction("DetalleCuenta", new { id = IdPedido });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> DividirCuenta(int id)
+        {
+            var pedido = await _context.PedidoLocals
+                .Include(p => p.DetallePedidos)
+                .FirstOrDefaultAsync(p => p.IdPedido == id);
+
+            if (pedido == null)
+                return NotFound();
+
+            return View("DividirCuenta", pedido); // asegúrate que esta vista exista
+        }
+
+
     }
 }

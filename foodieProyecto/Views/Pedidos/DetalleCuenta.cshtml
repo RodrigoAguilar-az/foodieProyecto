@@ -8,121 +8,72 @@
 
 @if (Model.DetallePedidos != null && Model.DetallePedidos.Any())
 {
-    <h6>Mesa #@Model.IdMesa</h6>
+        <h6>Mesa #@Model.IdMesa</h6>
 
-    <div style="max-height: 300px; overflow-y: auto;">
-        <ul class="list-group mb-3">
+        <div style="max-height: 300px; overflow-y: auto;">
+            <ul class="list-group mb-3">
             @foreach (var item in Model.DetallePedidos)
             {
-                <li class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <strong>Item ID:</strong> @item.ItemId<br />
-                            <strong>Cantidad:</strong> @item.Cantidad<br />
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>Item ID:</strong> @item.ItemId<br />
+                                <strong>Cantidad:</strong> @item.Cantidad<br />
                             @if (!string.IsNullOrEmpty(item.Comentarios))
                             {
-                                <strong>Comentarios:</strong> @item.Comentarios
-
-                                <br />
+                                        <strong>Comentarios:</strong> @item.Comentarios
+                                        <br />
                             }
-                            <strong>Estado:</strong> @item.Estado
+                                <strong>Estado:</strong> @item.Estado
+                            </div>
+                            <div class="text-end">
+                                <strong>$@item.Subtotal.ToString("0.00")</strong>
+                            </div>
                         </div>
-                        <div class="text-end">
-                            <strong>$@item.Subtotal.ToString("0.00")</strong>
-                        </div>
-                    </div>
-                </li>
+                    </li>
             }
-        </ul>
-    </div>
+            </ul>
+        </div>
 
-    <p><strong>Subtotal:</strong> $@subtotal.ToString("0.00")</p>
-    <p><strong>IVA (13%):</strong> $@iva.ToString("0.00")</p>
-    <p><strong>Total:</strong> $@total.ToString("0.00")</p>
+        <p><strong>Subtotal:</strong> $@subtotal.ToString("0.00")</p>
+        <p><strong>IVA (13%):</strong> $@iva.ToString("0.00")</p>
+        <p><strong>Total:</strong> $@total.ToString("0.00")</p>
 
     @if (Model.Estado != "Cerrada")
     {
-        <div class="mt-4" style="max-height: 200px; overflow-y: scroll;">
-            <h6>Procesar Pago</h6>
+                <div class="mt-4" style="max-height: 300px; overflow-y: auto;">
+                    <h6>Procesar Pago</h6>
 
-            <label for="montoPago">Monto a Pagar:</label>
-            <input type="number" class="form-control mb-2" id="montoPago" placeholder="Ej: 12.50" />
+                    <form asp-action="ProcesarPago" method="post" class="mb-3">
+                        <input type="hidden" name="IdPedido" value="@Model.IdPedido" />
 
-            <label for="metodoPago">Método de Pago:</label>
-            <select class="form-select mb-2" id="metodoPago" onchange="toggleTarjetaFields()">
-                <option value="1">Tarjeta Débito</option>
-                <option value="2">Tarjeta Crédito</option>
-                <option value="3">Transferencia</option>
-                <option value="4">Efectivo</option>
-            </select>
+                        <label>Monto a Pagar:</label>
+                        <input type="number" name="Monto" class="form-control mb-2" step="0.01" required />
 
-            <div id="tarjetaFields" style="display:none;">
-                <label for="tipoTarjeta">Tipo de Tarjeta:</label>
-                <input type="text" class="form-control mb-2" id="tipoTarjeta" placeholder="Débito / Crédito" />
+                        <label>Método de Pago:</label>
+                        <select name="MetodoPagoId" class="form-select mb-2" required>
+                            <option value="">Seleccione</option>
+                            <option value="1">Tarjeta Débito</option>
+                            <option value="2">Tarjeta Crédito</option>
+                            <option value="3">Transferencia</option>
+                            <option value="4">Efectivo</option>
+                        </select>
 
-                <label for="digitos">Últimos 4 dígitos:</label>
-                <input type="text" class="form-control mb-2" id="digitos" maxlength="4" />
+                        <button type="submit" class="btn btn-success w-100">Procesar Pago</button>
+                    </form>
 
-                <label for="titular">Titular:</label>
-                <input type="text" class="form-control mb-2" id="titular" />
-
-                <label for="referencia">Referencia:</label>
-                <input type="text" class="form-control mb-2" id="referencia" />
-            </div>
-
-            <button class="btn btn-success w-100 mb-2" onclick="procesarPago(@Model.IdPedido)">Procesar Pago</button>
-            <button class="btn btn-primary w-100">Dividir Cuenta</button>
-        </div>
+                    <form asp-action="DividirCuenta" method="get">
+                        <input type="hidden" name="id" value="@Model.IdPedido" />
+                        <button type="submit" class="btn btn-primary w-100">Dividir Cuenta</button>
+                    </form>
+                </div>
     }
     else
     {
-        <p><strong>Este pedido ya está cerrado. No es posible realizar pagos.</strong></p>
+                <p><strong>Este pedido ya está cerrado. No es posible realizar pagos.</strong></p>
     }
 }
 else
 {
-    <p>No hay detalles para esta mesa.</p>
-}
-
-@section Scripts {
-    <script>
-        function toggleTarjetaFields() {
-            const metodo = document.getElementById("metodoPago").value;
-            document.getElementById("tarjetaFields").style.display = (metodo == "1" || metodo == "2") ? "block" : "none";
-        }
-
-        function procesarPago(idPedido) {
-            const monto = parseFloat(document.getElementById("montoPago").value);
-            const metodoPagoId = parseInt(document.getElementById("metodoPago").value);
-
-            const datos = {
-                idPedido: idPedido,
-                monto: monto,
-                metodoPagoId: metodoPagoId,
-                tipoTarjeta: document.getElementById("tipoTarjeta").value,
-                digitos: document.getElementById("digitos").value,
-                titular: document.getElementById("titular").value,
-                referencia: document.getElementById("referencia").value
-            };
-
-            fetch('/Pedidos/ProcesarPago', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datos)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Pago registrado con éxito. Total pagado: $" + data.totalPagado.toFixed(2));
-                    location.reload();
-                } else {
-                    alert("Error al registrar el pago.");
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                alert("Hubo un error al procesar el pago.");
-            });
-        }
-    </script>
+        <p>No hay detalles para esta mesa.</p>
 }

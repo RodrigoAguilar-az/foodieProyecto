@@ -1,0 +1,49 @@
+﻿@model foodieProyecto.Models.PedidoLocal
+
+<div class="row">
+    <div class="col-md-6">
+        @for (int i = 0; i < 2; i++)  // Suponiendo 2 personas de ejemplo
+        {
+            <div class="card mb-3 p-3 bg-light">
+                <h6>Persona #@(i + 1)</h6>
+                <div>
+                    @foreach (var item in Model.DetallePedidos.Skip(i * 3).Take(3)) // Ejemplo
+                    {
+                        <div class="d-flex justify-content-between">
+                            <span>@item.TipoItem</span>
+                            <span>@item.Cantidad</span>
+                            <span>$@item.Subtotal.ToString("0.00")</span>
+                        </div>
+                    }
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                    <button class="btn btn-danger">Eliminar</button>
+                    <button class="btn btn-success">Procesar pago</button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-6">
+        <h6>Detalles de cuenta - Mesa #@Model.IdMesa</h6>
+        <div class="card p-3 bg-light mb-3">
+            @foreach (var item in Model.DetallePedidos)
+            {
+                <div class="d-flex justify-content-between border-bottom">
+                    <div>@item.Cantidad x @item.TipoItem</div>
+                    <div>$@item.Subtotal.ToString("0.00")</div>
+                </div>
+            }
+        </div>
+
+        @{
+            var subtotal = Model.DetallePedidos.Sum(x => x.Subtotal);
+            var iva = subtotal * 0.13m;
+            var total = subtotal + iva;
+        }
+
+        <p><strong>Sub Total:</strong> $@subtotal</p>
+        <p><strong>IVA (13%):</strong> $@iva.ToString("0.00")</p>
+        <p><strong>Total:</strong> <strong>$@total.ToString("0.00")</strong></p>
+    </div>
+</div>

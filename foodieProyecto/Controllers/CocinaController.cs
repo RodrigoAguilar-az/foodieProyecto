@@ -16,11 +16,23 @@ namespace foodieProyecto.Controllers
         {
             var lista = _context.DetallePedidos
             .Include(d => d.Encabezado)
-            .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado")
+            .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado" && (d.Estado != "Entregado" && d.Estado != "Cancelado"))
             .ToList();
 
+            var listaCocina = _context.DetallePedidos
+            .Include(d => d.Encabezado)
+            .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado" && d.TipoVenta == "Local" && (d.Estado != "Entregado" && d.Estado != "Cancelado"))
+            .ToList();
 
-            var pedidos = lista.Select(d => new DetallePedidoViewModel
+            var listaOnline = _context.DetallePedidos
+                .Include(d => d.Encabezado)
+                .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado" && d.TipoVenta == "Online" && (d.Estado != "Entregado" && d.Estado != "Cancelado"))
+                .ToList();
+
+            ViewBag.CocinaCount = listaCocina.Count;
+            ViewBag.OnlineCount = listaOnline.Count;
+
+            var pedidos = lista.OrderByDescending(d=> d.IdDetallePedido).Select(d => new DetallePedidoViewModel
             {
                 IdDetallePedido = d.IdDetallePedido,
                 IdPedido = d.Encabezado.IdPedido,
@@ -32,7 +44,50 @@ namespace foodieProyecto.Controllers
                 Estado = d.Estado
             }).ToList();
 
-            return View(pedidos); // 👈 Esto va al Index.cshtml
+            return View(pedidos);
+        }
+
+        public IActionResult ObtenerPedidosEditados(string searchQuery, string sortOrder)
+        {
+            // Iniciar la consulta con los filtros base
+            var lista = _context.DetallePedidos
+                .Include(d => d.Encabezado)
+                .Where(d => d.Encabezado.Estado != "Cerrado" && d.Estado != "Entregado" && d.Estado != "Cancelado");
+
+            // Filtrar por número de pedido si se especifica el query de búsqueda
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                lista = lista.Where(d => d.Encabezado.IdPedido.ToString().Contains(searchQuery));
+            }
+
+            // Ordenar según la opción seleccionada
+            switch (sortOrder)
+            {
+                case "antiguo":
+                    lista = lista.OrderBy(d => d.Encabezado.FechaApertura);  // Más antiguo
+                    break;
+                case "mesa":
+                    lista = lista.OrderBy(d => d.Encabezado.IdMesa);  // Por mesa
+                    break;
+                default:
+                    lista = lista.OrderByDescending(d => d.Encabezado.FechaApertura);  // Más reciente (por defecto)
+                    break;
+            }
+
+            // Cargar los datos en memoria y luego proyectarlos
+            var pedidos = lista.ToList().Select(d => new DetallePedidoViewModel
+            {
+                IdDetallePedido = d.IdDetallePedido,
+                IdPedido = d.Encabezado.IdPedido,
+                IdMesa = d.Encabezado.IdMesa,
+                Hora = d.Encabezado.FechaApertura != null ? d.Encabezado.FechaApertura.Value.ToString("HH:mm") : "--:--",
+                NombreItem = ObtenerNombreItem(d.TipoItem, d.ItemId), // Proyección después de cargar en memoria
+                TipoItem = d.TipoItem,
+                Comentarios = d.Comentarios ?? "",
+                Estado = d.Estado
+            }).ToList();
+
+            return PartialView("_ListadoPedidos", pedidos);
         }
 
 
@@ -41,14 +96,14 @@ namespace foodieProyecto.Controllers
             var detalles = _context.DetallePedidos
                 .Include(d => d.Encabezado)
                 .Where(d => d.Encabezado.Estado != "Cerrado")
-                .ToList(); // 👈 Esto trae los datos a memoria
+                .ToList();
 
             var pedidos = detalles.Select(d => new DetallePedidoViewModel
             {
                 IdDetallePedido = d.IdDetallePedido,
                 IdPedido = d.Encabezado.IdPedido,
                 IdMesa = d.Encabezado.IdMesa,
-                Hora = d.Encabezado.FechaApertura?.ToString("HH:mm") ?? "--:--", // ✅ Ahora sí puedes usar ?.
+                Hora = d.Encabezado.FechaApertura?.ToString("HH:mm") ?? "--:--",
                 NombreItem = ObtenerNombreItem(d.TipoItem, d.ItemId),
                 TipoItem = d.TipoItem,
                 Comentarios = d.Comentarios ?? "",
@@ -58,6 +113,7 @@ namespace foodieProyecto.Controllers
             return PartialView("_ListadoPedidos", pedidos);
         }
 
+        // Cambiar a un método estático
         private string ObtenerNombreItem(string tipo, int id)
         {
             if (tipo == "Plato")
@@ -76,7 +132,6 @@ namespace foodieProyecto.Controllers
             if (detalle == null || detalle.Encabezado == null)
                 return NotFound();
 
-            // Lógica basada en estado real actual
             switch (detalle.Estado)
             {
                 case "Pendiente":
@@ -86,7 +141,7 @@ namespace foodieProyecto.Controllers
                     detalle.Estado = "Finalizado";
                     break;
                 default:
-                    break; // No hace nada si ya está Finalizado
+                    break;
             }
 
             _context.SaveChanges();

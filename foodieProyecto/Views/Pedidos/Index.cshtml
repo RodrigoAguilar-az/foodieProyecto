@@ -1,38 +1,57 @@
 ﻿@model IEnumerable<PedidoLocal>
+@{
+    ViewData["Title"] = "Cuentas del Restaurante";
+}
 
-<h2 class="text-center">Cuentas del Restaurante</h2>
+<h2 class="text-center mb-4 fw-bold">Cuentas del Restaurante</h2>
+
 <div class="container">
-    <div class="d-flex justify-content-between mb-3">
-        <div>
-            <a href="@Url.Action("Index", new { estado = (string)null })" class="btn btn-danger">Todas</a>
-            <a href="@Url.Action("Index", new { estado = "Abierta" })" class="btn btn-primary">Abiertas</a>
-            <a href="@Url.Action("Index", new { estado = "Cerrada" })" class="btn btn-primary">Cerradas</a>
+    <!-- Filtros -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div class="btn-group mb-2">
+            <a href="@Url.Action("Index", new { estado = (string)null })" class="btn btn-danger rounded-pill px-4">Todas</a>
+            <a href="@Url.Action("Index", new { estado = "Abierta" })" class="btn btn-primary rounded-pill px-4">Abiertas</a>
+            <a href="@Url.Action("Index", new { estado = "Cerrada" })" class="btn btn-primary rounded-pill px-4">Cerradas</a>
+            <a href="@Url.Action("Index", new { estado = "En línea" })" class="btn btn-warning rounded-pill px-4">Pedidos en línea</a>
         </div>
-        <div class="d-flex">
-            <form method="get" action="@Url.Action("Index")" class="d-flex align-items-center">
-                <select name="orden" class="form-select me-2" onchange="this.form.submit()">
-                    <option value="">Ordenar por...</option>
-                    <option value="Por mesa">Por mesa</option>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+            <form method="get" action="@Url.Action("Index")" class="d-flex align-items-center gap-2">
+                <label class="me-2 fw-semibold">Ordenar:</label>
+                <select name="orden" class="form-select rounded-pill" style="width: 150px;" onchange="this.form.submit()">
+                    <option value="">Por mesa</option>
                     <option value="Por estado">Por estado</option>
                 </select>
-                <input type="text" name="busqueda" class="form-control me-2"
-                       placeholder="Buscar mesa"
-                       value="@Context.Request.Query["busqueda"]">
+                <input type="text" name="busqueda" class="form-control rounded-pill" placeholder="Buscar mesa" value="@Context.Request.Query["busqueda"]" style="width: 200px;" />
+                <button type="submit" class="btn btn-dark rounded-pill px-4">Buscar</button>
             </form>
         </div>
     </div>
 
+    <!-- Tarjetas de mesas -->
     <div class="row">
         @foreach (var pedido in Model)
         {
-            <div class="col-md-3 mb-3">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Mesa #@pedido.IdMesa</h5>
-                        <p><i class="bi bi-clock"></i> Abierta: @(pedido.FechaApertura?.ToString("HH:mm") ?? "No disponible")</p>
-                        <p><i class="bi bi-person"></i> Cliente: @pedido.NombreCliente</p>
-                        <p><i class="bi bi-cash"></i> Subtotal: $@(pedido.DetallePedidos.Sum(d => d.Subtotal))</p>
-                        <span class="badge bg-@(pedido.Estado == "Abierta" ? "success" : "primary")">@pedido.Estado</span>
+            var estadoLower = pedido.Estado?.ToLower() ?? "";
+            var color = estadoLower == "libre" ? "success" :
+            estadoLower == "abierta" ? "success" :
+            estadoLower == "cerrada" ? "primary" :
+            estadoLower == "ocupado" ? "danger" : "secondary";
+
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="border rounded-4 shadow-sm p-3 bg-white position-relative h-100" style="cursor: pointer;" onclick="mostrarDetalle(@pedido.IdPedido)">
+                    <div class="mb-2">
+                        <h5 class="fw-bold mb-1">Mesa #@pedido.IdMesa</h5>
+                        <span class="badge bg-@color position-absolute top-0 end-0 mt-2 me-2 rounded-pill">@pedido.Estado</span>
+                    </div>
+                    <div class="text-muted small mb-1">
+                        <i class="bi bi-clock me-1"></i> Abierta: @(pedido.FechaApertura?.ToString("HH:mm") ?? "N/D")
+                    </div>
+                    <div class="text-muted small mb-1">
+                        <i class="bi bi-person me-1"></i> Cliente: @pedido.NombreCliente
+                    </div>
+                    <div class="text-muted small">
+                        <i class="bi bi-cash me-1"></i> Sub Total: $@(pedido.DetallePedidos.Sum(d => d.Subtotal).ToString("0.00"))
                     </div>
                 </div>
             </div>
@@ -40,3 +59,30 @@
     </div>
 </div>
 
+<!-- Panel lateral de detalles -->
+<div id="detalleCuentaPanel" class="position-fixed end-0 top-0 h-100 bg-light border-start shadow p-4" style="width: 400px; display: none; z-index: 1050;">
+    <div class="d-flex justify-content-between mb-3">
+        <h5 class="fw-bold">Detalles de cuenta</h5>
+        <button onclick="cerrarPanel()" class="btn-close"></button>
+    </div>
+    <div id="contenidoDetalleCuenta">
+        <!-- Contenido AJAX aquí -->
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function mostrarDetalle(idPedido) {
+            fetch(`/Pedidos/DetalleCuenta?id=${idPedido}`)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById('contenidoDetalleCuenta').innerHTML = html;
+                    document.getElementById('detalleCuentaPanel').style.display = 'block';
+                });
+        }
+
+        function cerrarPanel() {
+            document.getElementById('detalleCuentaPanel').style.display = 'none';
+        }
+    </script>
+}

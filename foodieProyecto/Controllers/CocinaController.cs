@@ -2,6 +2,7 @@
 using foodieProyecto.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace foodieProyecto.Controllers
 {
@@ -46,6 +47,29 @@ namespace foodieProyecto.Controllers
 
             return View(pedidos);
         }
+        [HttpGet]
+        public IActionResult ObtenerListadoPedidos()
+        {
+            // Obtén los pedidos más recientes directamente de la base de datos
+            var listaPedidos = _context.DetallePedidos
+                .Include(d => d.Encabezado)
+                .Where(d => d.Encabezado.Estado != "Cerrado" && d.Estado != "Finalizado" && d.Estado != "Cancelado")
+                .ToList();
+
+            var pedidosViewModel = listaPedidos.Select(d => new DetallePedidoViewModel
+            {
+                IdDetallePedido = d.IdDetallePedido,
+                IdPedido = d.Encabezado.IdPedido,
+                IdMesa = d.Encabezado.IdMesa,
+                Hora = d.Encabezado.FechaApertura?.ToString("HH:mm") ?? "--:--",
+                NombreItem = ObtenerNombreItem(d.TipoItem, d.ItemId),
+                TipoItem = d.TipoItem,
+                Comentarios = d.Comentarios ?? "",
+                Estado = d.Estado
+            }).ToList();
+
+            return PartialView("_ListadoPedidos", pedidosViewModel);  // Devuelve la vista parcial con los pedidos más recientes
+        }
 
         public IActionResult ObtenerPedidosEditados(string searchQuery, string sortOrder)
         {
@@ -78,27 +102,6 @@ namespace foodieProyecto.Controllers
                 IdMesa = d.Encabezado.IdMesa,
                 Hora = d.Encabezado.FechaApertura != null ? d.Encabezado.FechaApertura.Value.ToString("HH:mm") : "--:--",
                 NombreItem = ObtenerNombreItem(d.TipoItem, d.ItemId), 
-                TipoItem = d.TipoItem,
-                Comentarios = d.Comentarios ?? "",
-                Estado = d.Estado
-            }).ToList();
-
-            return PartialView("_ListadoPedidos", pedidos);
-        }
-
-        public IActionResult ObtenerPedidos()
-        {
-            var lista = _context.DetallePedidos
-                .Include(d => d.Encabezado)
-                .Where(d => d.Encabezado.Estado != "Cerrado" && d.Estado != "Finalizado" && d.Estado != "Cancelado").ToList();
-
-            var pedidos = lista.Select(d => new DetallePedidoViewModel
-            {
-                IdDetallePedido = d.IdDetallePedido,
-                IdPedido = d.Encabezado.IdPedido,
-                IdMesa = d.Encabezado.IdMesa,
-                Hora = d.Encabezado.FechaApertura != null ? d.Encabezado.FechaApertura.Value.ToString("HH:mm") : "--:--",
-                NombreItem = ObtenerNombreItem(d.TipoItem, d.ItemId),
                 TipoItem = d.TipoItem,
                 Comentarios = d.Comentarios ?? "",
                 Estado = d.Estado

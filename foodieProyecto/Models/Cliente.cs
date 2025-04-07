@@ -19,5 +19,5 @@ public partial class Cliente
 
     public int? Loginid { get; set; }
 
-    public virtual LoginCliente? Login { get; set; }
+    public virtual Login_Cliente? Login { get; set; }
 }

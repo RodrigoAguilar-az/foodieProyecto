@@ -1,79 +1,116 @@
 ﻿@model foodieProyecto.Models.PedidoLocal
-
 @{
-    var subtotal = Model.DetallePedidos?.Sum(x => x.Subtotal) ?? 0;
+    // Calcular subtotal considerando descuentos en combos
+    var subtotal = Model.DetallePedidos?.Sum(x =>
+        x.PromocionInfo != null ? x.SubtotalConDescuento : x.Subtotal) ?? 0;
     var iva = subtotal * 0.13m;
     var total = subtotal + iva;
 }
-
 @if (Model.DetallePedidos != null && Model.DetallePedidos.Any())
 {
-        <h6>Mesa #@Model.IdMesa</h6>
+    <div class="mb-3">
+        <h6 class="fw-bold">Mesa #@Model.IdMesa</h6>
+        <p class="mb-1">Cliente: @Model.NombreCliente</p>
+        <p class="mb-1">Fecha: @Model.FechaApertura?.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
 
-        <div style="max-height: 300px; overflow-y: auto;">
-            <ul class="list-group mb-3">
+    <div style="max-height: 300px; overflow-y: auto;">
+        <div class="list-group mb-3">
             @foreach (var item in Model.DetallePedidos)
             {
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <strong>Item ID:</strong> @item.ItemId<br />
-                                <strong>Cantidad:</strong> @item.Cantidad<br />
-                            @if (!string.IsNullOrEmpty(item.Comentarios))
+                <div class="list-group-item border-0 px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="fw-bold">@(item.ItemInfo?.Nombre ?? $"{item.TipoItem} #{item.ItemId}")</div>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">@item.Cantidad x </span> 
+                                <span>$@(item.ItemInfo?.Precio?.ToString("0.00") ?? "0.00")</span>
+                            </div>
+                            @if (item.PromocionInfo != null)
                             {
-                                        <strong>Comentarios:</strong> @item.Comentarios
-                                        <br />
+                                <div class="text-success small">
+                                    <i class="bi bi-tag-fill me-1"></i>@item.PromocionInfo.Nombre -
+                                    Descuento: $@item.PromocionInfo.Descuento.ToString("0.00") c/u
+                                </div>
                             }
-                                <strong>Estado:</strong> @item.Estado
-                            </div>
-                            <div class="text-end">
-                                <strong>$@item.Subtotal.ToString("0.00")</strong>
-                            </div>
                         </div>
-                    </li>
+                        <div class="text-end fw-semibold">
+                            @if (item.PromocionInfo != null)
+                            {
+                                <div class="text-decoration-line-through text-muted small">
+                                    $@item.Subtotal.ToString("0.00")
+                                </div>
+                                <div>$@item.SubtotalConDescuento.ToString("0.00")</div>
+                            }
+                            else
+                            {
+                                <div>$@item.Subtotal.ToString("0.00")</div>
+                            }
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(item.Comentarios))
+                    {
+                        <div class="text-muted small mt-1">
+                            <i>@item.Comentarios</i>
+                        </div>
+                    }
+                </div>
             }
-            </ul>
         </div>
+    </div>
 
-        <p><strong>Subtotal:</strong> $@subtotal.ToString("0.00")</p>
-        <p><strong>IVA (13%):</strong> $@iva.ToString("0.00")</p>
-        <p><strong>Total:</strong> $@total.ToString("0.00")</p>
+    <div class="border-top pt-3">
+        <div class="d-flex justify-content-between mb-2">
+            <span>Subtotal:</span>
+            <span class="fw-semibold">$@subtotal.ToString("0.00")</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span>IVA (13%):</span>
+            <span class="fw-semibold">$@iva.ToString("0.00")</span>
+        </div>
+        <div class="d-flex justify-content-between">
+            <span class="fw-bold">Total:</span>
+            <span class="fw-bold">$@total.ToString("0.00")</span>
+        </div>
+    </div>
 
     @if (Model.Estado != "Cerrada")
     {
-                <div class="mt-4" style="max-height: 300px; overflow-y: auto;">
-                    <h6>Procesar Pago</h6>
-
-                    <form asp-action="ProcesarPago" method="post" class="mb-3">
-                        <input type="hidden" name="IdPedido" value="@Model.IdPedido" />
-
-                        <label>Monto a Pagar:</label>
-                        <input type="number" name="Monto" class="form-control mb-2" step="0.01" required />
-
-                        <label>Método de Pago:</label>
-                        <select name="MetodoPagoId" class="form-select mb-2" required>
-                            <option value="">Seleccione</option>
-                            <option value="1">Tarjeta Débito</option>
-                            <option value="2">Tarjeta Crédito</option>
-                            <option value="3">Transferencia</option>
-                            <option value="4">Efectivo</option>
-                        </select>
-
-                        <button type="submit" class="btn btn-success w-100">Procesar Pago</button>
-                    </form>
-
-                    <form asp-action="DividirCuenta" method="get">
-                        <input type="hidden" name="id" value="@Model.IdPedido" />
-                        <button type="submit" class="btn btn-primary w-100">Dividir Cuenta</button>
-                    </form>
+        <div class="mt-4 border-top pt-3">
+            <h6 class="fw-bold">Procesar Pago</h6>
+            <form asp-action="ProcesarPago" method="post" class="mb-3">
+                <input type="hidden" name="IdPedido" value="@Model.IdPedido" />
+                <div class="mb-2">
+                    <label class="form-label">Monto a Pagar:</label>
+                    <input type="number" name="Monto" class="form-control" value="@total.ToString("0.00")" step="0.01" required />
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Método de Pago:</label>
+                    <select name="MetodoPagoId" class="form-select" required>
+                        <option value="">Seleccione</option>
+                        <option value="1">Tarjeta Crédito</option>
+                        <option value="2">Tarjeta Débito</option>
+                        <option value="3">Efectivo</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success w-100 mb-2">Procesar Pago</button>
+            </form>
+            <form asp-action="DividirCuenta" method="get">
+                <input type="hidden" name="id" value="@Model.IdPedido" />
+                <button type="submit" class="btn btn-primary w-100">Dividir Cuenta</button>
+            </form>
+        </div>
     }
     else
     {
-                <p><strong>Este pedido ya está cerrado. No es posible realizar pagos.</strong></p>
+        <div class="alert alert-info mt-3">
+            <i class="bi bi-info-circle me-2"></i>Este pedido ya está cerrado. No es posible realizar pagos.
+        </div>
     }
 }
 else
 {
-        <p>No hay detalles para esta mesa.</p>
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>No hay detalles para esta mesa.
+    </div>
 }

@@ -71,7 +71,14 @@ namespace foodieProyecto.Controllers
         //    return PartialView("_ListadoPedidos", pedidosViewModel); 
         //}
         [HttpGet]
-        public IActionResult ObtenerPedidosEditados(string searchQuery, string activeTab, string sortOrder = "antiguo")
+        public IActionResult ObtenerSearchBar()
+        {
+            // Aquí, puedes pasar cualquier valor que necesites a _SearchBar, como `ViewData["ActiveTab"]`
+            return PartialView("_SearchBar");
+        }
+
+        [HttpGet]
+        public IActionResult ObtenerPedidosEditados(string searchQuery, string activeTab, string sortOrder )
         {
             GlobalData.ActiveTab = activeTab;
             GlobalData.Search = searchQuery;
@@ -205,8 +212,7 @@ namespace foodieProyecto.Controllers
 
             ViewBag.CocinaCount = listaCocina.Count;
             ViewBag.OnlineCount = listaOnline.Count;
-
-            return PartialView("_Tabs");
+            return PartialView("_Contadores");
         }
 
 

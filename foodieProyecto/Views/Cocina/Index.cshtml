@@ -140,18 +140,31 @@
         background-color: #2e8b57;
         color: white;
     }
+
 </style>
 
-<div class="container">
-    @await Html.PartialAsync("_Tabs")
+<div class="container ">
+    <div>
+        @await Html.PartialAsync("_Contadores")
+
+        @await Html.PartialAsync("_Tabs")
+    </div>
+    
+       
+    <div id="zona-search">
 
     @await Html.PartialAsync("_SearchBar")
+    </div>
 
     <div class="row" id="zona-pedidos"
          hx-get="/Cocina/ObtenerPedidosEditados"
          hx-trigger="load, every 1s"
          hx-target="#zona-pedidos"
-         hx-include="#activeTab">
+         hx-include="#activeTab, #searchQuery, #filtro">
+        <input type="hidden" id="activeTab" name="activeTab" value="@GlobalData.ActiveTab" />
+        <input type="hidden" id="searchQuery" name="searchQuery" value="@GlobalData.Search" />
+        <input type="hidden" id="filtro" name="filtro" value="@GlobalData.Filtro" />
+
         <partial name="_ListadoPedidos" model="Model" />
     </div>
 </div>

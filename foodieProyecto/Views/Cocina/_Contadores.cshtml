@@ -1,0 +1,21 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}<style>
+     #contadores {
+         width: 45%;
+     }
+</style>
+<div class="d-flex justify-content-evenly" id="contadores"
+      hx-get="/Cocina/ObtenerContadores"
+     hx-trigger="load, every 1s"
+     hx-target="#contadores"
+      hx-swap="outerHTML">
+    <span class="badge bg-success rounded-circle" id="cocina-count">
+        @ViewBag.CocinaCount
+    </span>
+    <span class="badge bg-success rounded-circle" id="online-count">
+        @ViewBag.OnlineCount
+    </span>
+</div>

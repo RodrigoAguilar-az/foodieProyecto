@@ -27,19 +27,22 @@
 
 
 
-<div class="nav-tabs" id="zona-contadores">
-    <div class="nav-tab active-tab" id="tab-local">
-        Panel local
-        <span class="badge bg-success rounded-circle" id="cocina-count">
-            @ViewBag.CocinaCount
-        </span>
+<div class="nav-tabs" id="zona-contadores"
+     >
+    <div class="nav-tab active-tab" id="tab-local"
+         hx-get="/Cocina/ObtenerSearchBar"
+         hx-target="#zona-search"
+         hx-trigger="click delay:2000ms" >
+        <span>Panel local</span>
+
     </div>
 
-    <div class="nav-tab inactive-tab" id="tab-online">
-        Panel en línea
-        <span class="badge bg-success rounded-circle" id="online-count">
-            @ViewBag.OnlineCount
-        </span>
+    <div class="nav-tab inactive-tab" id="tab-online"
+         hx-get="/Cocina/ObtenerSearchBar"
+         hx-target="#zona-search"
+         hx-trigger="click delay:2000ms">
+        <span>Panel en línea</span>         
+        
     </div>
 </div>
 
@@ -55,7 +58,8 @@
             this.classList.remove('inactive-tab');
 
             document.getElementById('activeTab').value = this.id;
-
+            
+              
             // Cambiar el contenido dependiendo del tab seleccionado
            /*  loadPedidos(this.id);  */// Llamamos a la función que carga los pedidos basados en el tab
         });

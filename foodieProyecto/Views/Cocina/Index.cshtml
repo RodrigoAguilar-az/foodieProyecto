@@ -164,22 +164,6 @@
     });
 </script>
 
-
-<script>
-    function updateCounters(event) {
-        const cocinaCount = event.detail.xhr.responseText.match(/CocinaCount":(\d+)/)[1]; 
-        const onlineCount = event.detail.xhr.responseText.match(/OnlineCount":(\d+)/)[1]; 
-
-        document.getElementById("cocina-count").textContent = cocinaCount;
-        document.getElementById("online-count").textContent = onlineCount;
-    }
-
-    document.body.addEventListener("htmx:afterSwap", function(event) {
-        updateCounters(event);
-    });
-</script>
-
-
 @* @section Scripts {
    
 

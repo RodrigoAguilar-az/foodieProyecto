@@ -5,7 +5,7 @@
 {
     foreach (var grupo in Model.GroupBy(p => new { p.IdPedido, p.IdMesa, p.Hora }))
     {
-        <div class="col-md-4">
+        <div class="col-md-4" id="pedido-@grupo.Key.IdPedido">
             @await Html.PartialAsync("_CartaPedido", grupo.ToList())
         </div>
     }

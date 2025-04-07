@@ -143,20 +143,46 @@
 </style>
 
 <div class="container">
-    <!-- Tabs -->
     @await Html.PartialAsync("_Tabs")
 
-    <!-- Sección de búsqueda y orden -->
     @await Html.PartialAsync("_SearchBar")
 
-    <!-- Contenedor de cartas de pedidos -->
     <div class="row" id="zona-pedidos">
-        @* Aquí se incluirán todas las cartas de pedido dinámicamente *@
         <partial name="_ListadoPedidos" model="Model" />
     </div>
 </div>
 
+<script>
+    document.body.addEventListener("htmx:afterSwap", function(event) {
+        const itemId = event.target.id;
+        if (itemId && itemId.startsWith('detalle-')) {
+            const itemDiv = document.getElementById(itemId);
+            if (itemDiv) {
+                itemDiv.remove();
+            }
+        }
+    });
+</script>
+
+
+<script>
+    function updateCounters(event) {
+        const cocinaCount = event.detail.xhr.responseText.match(/CocinaCount":(\d+)/)[1]; 
+        const onlineCount = event.detail.xhr.responseText.match(/OnlineCount":(\d+)/)[1]; 
+
+        document.getElementById("cocina-count").textContent = cocinaCount;
+        document.getElementById("online-count").textContent = onlineCount;
+    }
+
+    document.body.addEventListener("htmx:afterSwap", function(event) {
+        updateCounters(event);
+    });
+</script>
+
+
 @* @section Scripts {
+   
+
     <script>
         $(document).ready(function () {
             $('.action-btn').on('click', function () {
@@ -175,4 +201,5 @@
             });
         });
     </script>
+  
 } *@

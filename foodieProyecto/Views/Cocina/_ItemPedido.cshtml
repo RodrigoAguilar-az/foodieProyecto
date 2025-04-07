@@ -15,6 +15,7 @@
             hx-post="@Url.Action("ActualizarEstado", "Cocina")"
             hx-include="closest div.order-item"
             hx-target="closest div.order-item"
+            hx-on="htmx:afterSwap: updateCounters"
             hx-swap="outerHTML"
             name="idDetalle"
             value="@Model.IdDetallePedido">

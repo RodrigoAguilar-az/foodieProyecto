@@ -147,7 +147,11 @@
 
     @await Html.PartialAsync("_SearchBar")
 
-    <div class="row" id="zona-pedidos">
+    <div class="row" id="zona-pedidos" 
+         hx-get="/Cocina/ObtenerListadoPedidos" 
+         hx-trigger="load, every 2s"            
+         hx-target="#zona-pedidos"              <!-- Actualiza solo el contenido de #zona-pedidos -->
+         hx-swap="outerHTML">
         <partial name="_ListadoPedidos" model="Model" />
     </div>
 </div>

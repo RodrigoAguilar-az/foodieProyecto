@@ -33,7 +33,7 @@ public partial class RestauranteContext : DbContext
 
     public virtual DbSet<Factura> Facturas { get; set; }
 
-    public virtual DbSet<LoginCliente> LoginClientes { get; set; }
+    public virtual DbSet<Login_Cliente> LoginClientes { get; set; }
 
     public virtual DbSet<Menu> Menus { get; set; }
 

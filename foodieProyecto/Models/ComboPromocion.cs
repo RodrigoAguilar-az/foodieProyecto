@@ -11,9 +11,9 @@ public partial class ComboPromocion
 
     public int? PromocionId { get; set; }
 
-    public DateOnly? FechaInicio { get; set; }
+    public DateTime? FechaInicio { get; set; }
 
-    public DateOnly? FechaFin { get; set; }
+    public DateTime? FechaFin { get; set; }
 
     public int? Estado { get; set; }
 

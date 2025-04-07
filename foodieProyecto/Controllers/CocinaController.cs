@@ -145,19 +145,6 @@ namespace foodieProyecto.Controllers
 
             _context.SaveChanges();
 
-            var listaCocina = _context.DetallePedidos
-            .Include(d => d.Encabezado)
-            .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado" && d.TipoVenta == "Local" && (d.Estado != "Finalizado" && d.Estado != "Cancelado"))
-            .ToList();
-
-            var listaOnline = _context.DetallePedidos
-                .Include(d => d.Encabezado)
-                .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado" && d.TipoVenta == "Online" && (d.Estado != "Finalizado" && d.Estado != "Cancelado"))
-                .ToList();
-
-            ViewBag.CocinaCount = listaCocina.Count;
-            ViewBag.OnlineCount = listaOnline.Count; 
-
             var validacion = _context.DetallePedidos
                 .Include(d => d.Encabezado)
                 .Where(d => d.EncabezadoId == idPedido && d.Encabezado.Estado != "Cerrado" && d.TipoVenta == "Local" && (d.Estado != "Finalizado" && d.Estado != "Cancelado"))
@@ -186,6 +173,26 @@ namespace foodieProyecto.Controllers
 
             return PartialView("_ItemPedido", viewModel);
         }
+
+        [HttpGet]
+        public IActionResult ObtenerContadores()
+        {
+            var listaCocina = _context.DetallePedidos
+                .Include(d => d.Encabezado)
+                .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado" && d.TipoVenta == "Local" && (d.Estado != "Finalizado" && d.Estado != "Cancelado"))
+                .ToList();
+
+            var listaOnline = _context.DetallePedidos
+                .Include(d => d.Encabezado)
+                .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado" && d.TipoVenta == "Online" && (d.Estado != "Finalizado" && d.Estado != "Cancelado"))
+                .ToList();
+
+            ViewBag.CocinaCount = listaCocina.Count;
+            ViewBag.OnlineCount = listaOnline.Count;
+
+            return PartialView("_Tabs"); // Solo devuelve la vista parcial con los contadores
+        }
+
 
 
 

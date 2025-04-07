@@ -1,10 +1,18 @@
-﻿<div class="nav-tabs">
+﻿<div class="nav-tabs" id="zona-contadores"
+     hx-get="/Cocina/ObtenerContadores"
+     hx-trigger="load, every 2s"
+     hx-target="#zona-contadores"
+     hx-swap="outerHTML">
     <div class="nav-tab active-tab">
         Panel de cocina
-        <span class="badge bg-success rounded-circle" id="cocina-count">@ViewBag.CocinaCount</span>
+        <span class="badge bg-success rounded-circle" id="cocina-count">
+            @ViewBag.CocinaCount
+        </span>
     </div>
     <div class="nav-tab inactive-tab">
         Panel en línea
-        <span class="badge bg-success rounded-circle" id="online-count">@ViewBag.OnlineCount</span>
+        <span class="badge bg-success rounded-circle" id="online-count">
+            @ViewBag.OnlineCount
+        </span>
     </div>
 </div>

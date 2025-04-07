@@ -1,18 +1,81 @@
-﻿<div class="nav-tabs" id="zona-contadores"
+﻿@* <div class="nav-tabs" id="zona-contadores"
      hx-get="/Cocina/ObtenerContadores"
      hx-trigger="load, every 2s"
      hx-target="#zona-contadores"
      hx-swap="outerHTML">
-    <div class="nav-tab active-tab">
-        Panel de cocina
+    <div class="nav-tab active-tab" id="tab-local"
+         hx-get="/Cocina/ObtenerPedidosLocal"
+         hx-target="#zona-pedidos"
+         hx-swap="outerHTML"
+         hx-trigger="click">
+        Panel local
         <span class="badge bg-success rounded-circle" id="cocina-count">
             @ViewBag.CocinaCount
         </span>
     </div>
-    <div class="nav-tab inactive-tab">
+    <div class="nav-tab inactive-tab" id="tab-online"
+         hx-get="/Cocina/ObtenerPedidosOnline"
+         hx-target="#zona-pedidos"
+         hx-swap="outerHTML"
+         hx-trigger="click">
+        Panel en línea
+        <span class="badge bg-success rounded-circle" id="online-count">
+            @ViewBag.OnlineCount
+        </span>
+    </div>
+</div> *@
+
+
+
+<div class="nav-tabs" id="zona-contadores">
+    <div class="nav-tab active-tab" id="tab-local">
+        Panel local
+        <span class="badge bg-success rounded-circle" id="cocina-count">
+            @ViewBag.CocinaCount
+        </span>
+    </div>
+
+    <div class="nav-tab inactive-tab" id="tab-online">
         Panel en línea
         <span class="badge bg-success rounded-circle" id="online-count">
             @ViewBag.OnlineCount
         </span>
     </div>
 </div>
+
+<input type="hidden" id="activeTab" name="activeTab" value="tab-local">
+
+<script>
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.nav-tab').forEach(item => item.classList.remove('active-tab'));
+            document.querySelectorAll('.nav-tab').forEach(item => item.classList.add('inactive-tab'));
+
+            this.classList.add('active-tab');
+            this.classList.remove('inactive-tab');
+
+            document.getElementById('activeTab').value = this.id;
+
+            // Cambiar el contenido dependiendo del tab seleccionado
+           /*  loadPedidos(this.id);  */// Llamamos a la función que carga los pedidos basados en el tab
+        });
+    });
+
+    // Función para cargar los pedidos según el tab activo
+    // function loadPedidos(tabId) {
+    //     const zonaPedidos = document.getElementById('zona-pedidos');
+    //     if (tabId === "tab-local") {
+    //         // Lógica para cargar los pedidos locales
+    //         zonaPedidos.innerHTML = '<p>Cargando pedidos locales...</p>'; // Aquí iría el código para obtener los pedidos locales
+    //     } else if (tabId === "tab-online") {
+    //         // Lógica para cargar los pedidos online
+    //         zonaPedidos.innerHTML = '<p>Cargando pedidos en línea...</p>'; // Aquí iría el código para obtener los pedidos online
+    //     }
+    // }
+
+    // // Inicializamos la vista con los pedidos de "tab-local"
+    // loadPedidos(document.getElementById('activeTab').value);
+</script>
+
+
+

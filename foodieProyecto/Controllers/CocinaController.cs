@@ -3,6 +3,7 @@ using foodieProyecto.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using System.Globalization;
 
 namespace foodieProyecto.Controllers
 {
@@ -17,7 +18,7 @@ namespace foodieProyecto.Controllers
         {
             var lista = _context.DetallePedidos
             .Include(d => d.Encabezado)
-            .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado" && (d.Estado != "Finalizado" && d.Estado != "Cancelado"))
+            .Where(d => d.Encabezado != null && d.TipoVenta == "Local" && d.Encabezado.Estado != "Cerrado" && (d.Estado != "Finalizado" && d.Estado != "Cancelado"))
             .ToList();
 
             var listaCocina = _context.DetallePedidos
@@ -47,35 +48,47 @@ namespace foodieProyecto.Controllers
 
             return View(pedidos);
         }
+        //[HttpGet]
+        //public IActionResult ObtenerListadoPedidos()
+        //{
+        //    var listaPedidos = _context.DetallePedidos
+        //        .Include(d => d.Encabezado)
+        //        .Where(d => d.Encabezado.Estado != "Cerrado" && d.TipoVenta == "Local"&& d.Estado != "Finalizado" && d.Estado != "Cancelado")
+        //        .ToList();
+
+        //    var pedidosViewModel = listaPedidos.Select(d => new DetallePedidoViewModel
+        //    {
+        //        IdDetallePedido = d.IdDetallePedido,
+        //        IdPedido = d.Encabezado.IdPedido,
+        //        IdMesa = d.Encabezado.IdMesa,
+        //        Hora = d.Encabezado.FechaApertura?.ToString("HH:mm") ?? "--:--",
+        //        NombreItem = ObtenerNombreItem(d.TipoItem, d.ItemId),
+        //        TipoItem = d.TipoItem,
+        //        Comentarios = d.Comentarios ?? "",
+        //        Estado = d.Estado
+        //    }).ToList();
+
+        //    return PartialView("_ListadoPedidos", pedidosViewModel); 
+        //}
         [HttpGet]
-        public IActionResult ObtenerListadoPedidos()
+        public IActionResult ObtenerPedidosEditados(string searchQuery, string activeTab, string sortOrder = "antiguo")
         {
-            // Obtén los pedidos más recientes directamente de la base de datos
-            var listaPedidos = _context.DetallePedidos
-                .Include(d => d.Encabezado)
-                .Where(d => d.Encabezado.Estado != "Cerrado" && d.Estado != "Finalizado" && d.Estado != "Cancelado")
-                .ToList();
+            GlobalData.ActiveTab = activeTab;
+            GlobalData.Search = searchQuery;
+            GlobalData.Filtro = sortOrder;
 
-            var pedidosViewModel = listaPedidos.Select(d => new DetallePedidoViewModel
-            {
-                IdDetallePedido = d.IdDetallePedido,
-                IdPedido = d.Encabezado.IdPedido,
-                IdMesa = d.Encabezado.IdMesa,
-                Hora = d.Encabezado.FechaApertura?.ToString("HH:mm") ?? "--:--",
-                NombreItem = ObtenerNombreItem(d.TipoItem, d.ItemId),
-                TipoItem = d.TipoItem,
-                Comentarios = d.Comentarios ?? "",
-                Estado = d.Estado
-            }).ToList();
-
-            return PartialView("_ListadoPedidos", pedidosViewModel);  // Devuelve la vista parcial con los pedidos más recientes
-        }
-
-        public IActionResult ObtenerPedidosEditados(string searchQuery, string sortOrder)
-        {
             var lista = _context.DetallePedidos
                 .Include(d => d.Encabezado)
                 .Where(d => d.Encabezado.Estado != "Cerrado" && d.Estado != "Finalizado" && d.Estado != "Cancelado");
+
+            if (activeTab == "tab-local")
+            {
+                lista = lista.Where(d => d.TipoVenta == "Local");
+            }else if (activeTab == "tab-online")
+            {
+                lista = lista.Where(d => d.TipoVenta == "En linea");
+            }
+
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
@@ -187,17 +200,24 @@ namespace foodieProyecto.Controllers
 
             var listaOnline = _context.DetallePedidos
                 .Include(d => d.Encabezado)
-                .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado" && d.TipoVenta == "Online" && (d.Estado != "Finalizado" && d.Estado != "Cancelado"))
+                .Where(d => d.Encabezado != null && d.Encabezado.Estado != "Cerrado" && d.TipoVenta == "En linea" && (d.Estado != "Finalizado" && d.Estado != "Cancelado"))
                 .ToList();
 
             ViewBag.CocinaCount = listaCocina.Count;
             ViewBag.OnlineCount = listaOnline.Count;
 
-            return PartialView("_Tabs"); // Solo devuelve la vista parcial con los contadores
+            return PartialView("_Tabs");
         }
 
 
 
 
     }
+}
+
+public static class GlobalData
+{
+    public static string ActiveTab { get; set; } = "tab-local";
+    public static string Search { get; set; } = "";
+    public static string Filtro { get; set; } = "antiguo";
 }

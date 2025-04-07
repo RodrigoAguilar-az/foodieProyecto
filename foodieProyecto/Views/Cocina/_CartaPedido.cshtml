@@ -2,6 +2,7 @@
 @model List<DetallePedidoViewModel>
 
 @{
+    var activeTav = GlobalData.ActiveTab;
     var pedido = Model.First();
     bool todosFinalizados = Model.All(item => item.Estado == "Finalizado");
 }
@@ -9,133 +10,144 @@
 <style>
     /* === Estilos para la tarjeta === */
     .order-card {
-        background-color: #f8f9fa;
-        border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        max-width: 500px;
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
     }
 
     .order-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
     }
 
     .order-number {
-        font-weight: bold;
-        font-size: 1.2rem;
-        color: #003049;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #003049;
     }
 
     .order-time {
-        color: #495057;
+    color: #495057;
     }
 
     .table-number {
-        font-weight: bold;
-        margin-bottom: 15px;
-        color: #003049;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #003049;
     }
 
     .order-item {
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #dee2e6;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
     }
 
     .order-item-header {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     }
 
     .item-name {
-        font-weight: 500;
+    font-weight: 500;
     }
 
     .item-description {
-        font-style: italic;
-        color: #6c757d;
-        margin-top: 5px;
+    font-style: italic;
+    color: #6c757d;
+    margin-top: 5px;
     }
 
     /* === Badges === */
     .item-badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 30px; /* Puedes ajustar este valor */
-        min-width: 80px; /* Asegura un ancho mínimo */
-        padding: 0 12px;
-        border-radius: 20px;
-        font-weight: bold;
-        color: #fff;
-        font-size: 0.9rem;
-        text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px; /* Puedes ajustar este valor */
+    min-width: 80px; /* Asegura un ancho mínimo */
+    padding: 0 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: #fff;
+    font-size: 0.9rem;
+    text-align: center;
     }
 
 
     .badge-blue {
-        background-color: #009aff;
+    background-color: #009aff;
     }
 
     .badge-yellow {
-        background-color: #ffc107;
-        color: #212529;
+    background-color: #ffc107;
+    color: #212529;
     }
 
     /* === Botones de acción === */
     .action-btn {
-        padding: 6px 12px;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 0.9rem;
-        color: white;
-        cursor: pointer;
-        margin-top: 8px;
-        transition: background-color 0.2s ease;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: white;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background-color 0.2s ease;
     }
 
     /* Pendiente - Gris */
     .btn-start {
-        background-color: #6c757d;
+    background-color: #6c757d;
     }
 
-        .btn-start:hover {
-            background-color: #5a6268;
-        }
+    .btn-start:hover {
+    background-color: #5a6268;
+    }
 
     /* En Proceso - Rojo */
     .btn-finish {
-        background-color: #dc3545;
+    background-color: #dc3545;
     }
 
-        .btn-finish:hover {
-            background-color: #c82333;
-        }
+    .btn-finish:hover {
+    background-color: #c82333;
+    }
 
     /* Finalizado - Verde */
     .btn-completed {
-        background-color: #28a745;
+    background-color: #28a745;
     }
 
-        .btn-completed:hover {
-            background-color: #218838;
-        }
+    .btn-completed:hover {
+    background-color: #218838;
+    }
 </style>
 
 @if (!todosFinalizados)
 {
     <div class="order-card" >
         <div class="order-header">
-            <div class="order-number">Pedido #@pedido.IdPedido</div>
+            @if(activeTav == "tab-online")
+            {
+                <div class="order-number">Pedido En Linea#@pedido.IdPedido</div>
+
+            }
+            else
+            {
+                <div class="order-number">Pedido #@pedido.IdPedido</div>
+            }
             <div class="order-time">@pedido.Hora</div>
         </div>
-
+        @if (activeTav == "tab-local")
+        {
+            
         <div class="table-number">Mesa #@pedido.IdMesa</div>
+        }
 
         @foreach (var item in Model)
         {

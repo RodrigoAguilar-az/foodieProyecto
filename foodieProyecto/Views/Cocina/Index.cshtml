@@ -147,14 +147,55 @@
 
     @await Html.PartialAsync("_SearchBar")
 
-    <div class="row" id="zona-pedidos" 
-         hx-get="/Cocina/ObtenerListadoPedidos" 
-         hx-trigger="load, every 2s"            
-         hx-target="#zona-pedidos"              <!-- Actualiza solo el contenido de #zona-pedidos -->
-         hx-swap="outerHTML">
+    <div class="row" id="zona-pedidos"
+         hx-get="/Cocina/ObtenerPedidosEditados"
+         hx-trigger="load, every 1s"
+         hx-target="#zona-pedidos"
+         hx-include="#activeTab">
         <partial name="_ListadoPedidos" model="Model" />
     </div>
 </div>
+
+
+@* <script>
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.nav-tab').forEach(item => item.classList.remove('active-tab'));
+
+            this.classList.add('active-tab');
+
+            document.getElementById('activeTab').value = this.id;  
+        });
+    });
+
+    document.body.addEventListener("htmx:afterSwap", function(event) {
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.nav-tab').forEach(item => item.classList.remove('active-tab'));
+
+                this.classList.add('active-tab');
+
+                document.getElementById('activeTab').value = this.id; 
+            });
+        });
+    });
+</script> *@
+@* <script>
+    document.body.addEventListener("click",function(event){
+        var estado = document.getElementById('activeTab');
+        if(estado.value === "tab-online"){
+            estado.value = "tab-local";
+        }else{
+            estado.value = "tab-online";
+        }
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+             document.querySelectorAll('.nav-tab').forEach(item => item.classList.remove('active-tab'));
+
+            this.classList.add('active-tab');
+        });
+    })
+
+</script> *@
 
 <script>
     document.body.addEventListener("htmx:afterSwap", function(event) {
@@ -169,7 +210,7 @@
 </script>
 
 @* @section Scripts {
-   
+
 
     <script>
         $(document).ready(function () {
@@ -189,5 +230,5 @@
             });
         });
     </script>
-  
+
 } *@

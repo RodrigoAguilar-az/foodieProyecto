@@ -299,22 +299,22 @@ public partial class RestauranteContext : DbContext
                 .HasConstraintName("FK__Factura__emplead__6D0D32F4");
         });
 
-        modelBuilder.Entity<LoginCliente>(entity =>
+        modelBuilder.Entity<Login_Cliente>(entity =>
         {
-            entity.HasKey(e => e.Loginid).HasName("PK__Login_Cl__1F5DF0A7876CA3D4");
+            entity.HasKey(e => e.loginid).HasName("PK__Login_Cl__1F5DF0A7876CA3D4");
 
             entity.ToTable("Login_Cliente");
 
-            entity.HasIndex(e => e.Correo, "UQ__Login_Cl__2A586E0BB35824EF").IsUnique();
+            entity.HasIndex(e => e.correo, "UQ__Login_Cl__2A586E0BB35824EF").IsUnique();
 
-            entity.Property(e => e.Loginid)
+            entity.Property(e => e.loginid)
                 .ValueGeneratedNever()
                 .HasColumnName("loginid");
-            entity.Property(e => e.Contraseña)
+            entity.Property(e => e.contraseña)
                 .HasMaxLength(200)
                 .IsUnicode(false)
                 .HasColumnName("contraseña");
-            entity.Property(e => e.Correo)
+            entity.Property(e => e.correo)
                 .HasMaxLength(200)
                 .IsUnicode(false)
                 .HasColumnName("correo");
